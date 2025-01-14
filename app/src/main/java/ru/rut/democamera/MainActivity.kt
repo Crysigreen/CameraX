@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraSelector: CameraSelector
     private var imageCapture: ImageCapture? = null
     private lateinit var imageCaptureExecutor: ExecutorService
+
     @RequiresApi(Build.VERSION_CODES.M)
     private val cameraPermissionResult =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
@@ -38,10 +39,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Snackbar.make(
                     binding.root,
-                    "The camera permission is necessary",
+                    "Необходимо разрешение на использование камеры",
                     Snackbar.LENGTH_INDEFINITE
                 ).show()
-
             }
         }
 
@@ -49,9 +49,9 @@ class MainActivity : AppCompatActivity() {
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(binding.preview.surfaceProvider)
         }
+
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-
             imageCapture = ImageCapture.Builder().build()
 
             try {
@@ -68,11 +68,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Инициализация
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
         imageCaptureExecutor = Executors.newSingleThreadExecutor()
 
+        // Запрос разрешений
         cameraPermissionResult.launch(android.Manifest.permission.CAMERA)
 
         binding.imgCaptureBtn.setOnClickListener {
@@ -90,11 +91,17 @@ class MainActivity : AppCompatActivity() {
             }
             startCamera()
         }
+
         binding.galleryBtn.setOnClickListener {
             val intent = Intent(this, GalleryActivity::class.java)
             startActivity(intent)
         }
 
+        // Переход на экран видео
+        binding.videoBtn.setOnClickListener {
+            val intent = Intent(this, VideoActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroy() {
@@ -104,26 +111,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun takePhoto() {
         imageCapture?.let {
-            val fileName = "JPEG_${System.currentTimeMillis()}.jpg"
-            val file = File(externalMediaDirs[0], fileName)
+            val fileName = "IMG_${System.currentTimeMillis()}.jpg"
+            val file = File(externalMediaDirs.firstOrNull(), fileName)
             val outputFileOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+
             it.takePicture(
                 outputFileOptions,
                 imageCaptureExecutor,
                 object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        Log.i("TAG", "The image has been saved in ${file.toUri()}")
+                        Log.i("TAG", "Фото сохранено: ${file.toUri()}")
                     }
 
                     override fun onError(exception: ImageCaptureException) {
                         Toast.makeText(
-                            binding.root.context,
-                            "Error taking photo",
+                            this@MainActivity,
+                            "Ошибка при сохранении фото",
                             Toast.LENGTH_LONG
                         ).show()
-                        Log.d("TAG", "Error taking photo:$exception")
+                        Log.d("TAG", "Error taking photo: $exception")
                     }
-
                 })
         }
     }
