@@ -4,7 +4,6 @@
     <uses-feature android:name="android.hardware.camera.any" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
@@ -21,6 +20,11 @@
             android:theme="@style/Theme.DemoCamera" />
         <activity
             android:name=".GalleryActivity"
+            android:label="@string/title_activity_gallery"
+            android:exported="false" />
+        <activity
+            android:name=".MediaDetailActivity"
+            android:label="@string/title_activity_media_detail"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -11,41 +11,76 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/recordTimerTxt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:background="#80000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:weightSum="3"
         android:padding="16dp">
 
-        <ImageButton
-            android:id="@+id/switchCameraBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_switch_camera"
-            android:contentDescription="@string/switch_camera"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/switchCameraBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/switch_camera"
+                android:src="@drawable/ic_switch_camera" />
+
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="match_parent" />
+
+            <ImageButton
+                android:id="@+id/backToPhotoBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_photo"
+                android:contentDescription="@string/back_photo_screen"
+                android:background="?android:attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/recordBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:src="@drawable/ic_record"
-            android:contentDescription="@string/start_recording"/>
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/start_recording"
+            android:src="@drawable/record_button" />
 
-        <ImageButton
-            android:id="@+id/videoGalleryBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_gallery"
-            android:contentDescription="@string/open_gallery" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/backToPhotoBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_photo_camera"
-            android:contentDescription="@string/back_photo_screen"
-            android:layout_marginLeft="16dp"/>
+            <ImageButton
+                android:id="@+id/videoGalleryBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_gallery"
+                android:contentDescription="@string/open_gallery"
+                android:background="?android:attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

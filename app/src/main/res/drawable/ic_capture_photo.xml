@@ -1,0 +1,32 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Внешний овал (белый цвет, чёрная граница) -->
+    <item>
+        <shape android:shape="oval">
+            <!-- Заливаем белым -->
+            <solid android:color="@android:color/white" />
+
+            <!-- Чёрная граница (stroke) -->
+            <stroke
+                android:width="4dp"
+                android:color="@android:color/black" />
+
+            <!-- Размер общего овала -->
+            <size
+                android:width="64dp"
+                android:height="64dp" />
+        </shape>
+    </item>
+
+    <!-- Внутренний овал (чёрный), со смещением 8dp со всех сторон -->
+    <item
+        android:left="6dp"
+        android:top="6dp"
+        android:right="6dp"
+        android:bottom="6dp">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/black" />
+        </shape>
+    </item>
+
+</layer-list>

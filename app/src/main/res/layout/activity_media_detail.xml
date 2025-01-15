@@ -5,20 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Кнопка для возврата на экран камеры / создания нового контента -->
     <ImageButton
-        android:id="@+id/backTo"
+        android:id="@+id/deleteFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/back_to"
-        android:contentDescription="@string/back_to"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="@string/delete_media"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:padding="8dp"
         android:layout_margin="8dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/galleryRecyclerView"
+    <!-- ViewPager2 для пролистывания -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/detailViewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent"/>
 </LinearLayout>

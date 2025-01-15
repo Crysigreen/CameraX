@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -29,10 +31,24 @@ class VideoActivity : AppCompatActivity() {
     private lateinit var recordExecutor: ExecutorService
     private var recording: Recording? = null
 
+    private var recordStartTime: Long = 0L
+    private val timerHandler = Handler(Looper.getMainLooper())
+    private val timerRunnable = object : Runnable {
+        override fun run() {
+            val elapsedSeconds = (System.currentTimeMillis() - recordStartTime) / 1000
+            val minutes = elapsedSeconds / 60
+            val seconds = elapsedSeconds % 60
+
+            val formattedTime = String.format("%02d:%02d", minutes, seconds)
+            binding.recordTimerTxt.text = formattedTime
+
+            timerHandler.postDelayed(this, 1000)
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     private val cameraPermissionResult =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // Проверяем, все ли разрешения получены
             val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
             val audioGranted = permissions[Manifest.permission.RECORD_AUDIO] ?: false
 
@@ -55,7 +71,6 @@ class VideoActivity : AppCompatActivity() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         recordExecutor = Executors.newSingleThreadExecutor()
 
-        // Запрашиваем сразу два разрешения
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             cameraPermissionResult.launch(arrayOf(
                 Manifest.permission.CAMERA,
@@ -65,17 +80,22 @@ class VideoActivity : AppCompatActivity() {
             startCamera()
         }
 
-        // Кнопка переключения камеры
         binding.switchCameraBtn.setOnClickListener {
+            val wasRecording = (recording != null)
+            if (wasRecording) {
+                stopRecording()
+            }
             cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
                 CameraSelector.DEFAULT_FRONT_CAMERA
             } else {
                 CameraSelector.DEFAULT_BACK_CAMERA
             }
             startCamera()
+            if (wasRecording) {
+                startRecording()
+            }
         }
 
-        // Кнопка записи
         binding.recordBtn.setOnClickListener {
             if (recording == null) {
                 startRecording()
@@ -84,13 +104,11 @@ class VideoActivity : AppCompatActivity() {
             }
         }
 
-        // Переход в галерею
         binding.videoGalleryBtn.setOnClickListener {
             val intent = Intent(this, GalleryActivity::class.java)
             startActivity(intent)
         }
 
-        // Возврат к фото
         binding.backToPhotoBtn.setOnClickListener {
             finish()
         }
@@ -119,20 +137,18 @@ class VideoActivity : AppCompatActivity() {
     private fun startRecording() {
         val videoCapture = this.videoCapture ?: return
 
-        // Проверяем, есть ли разрешение на аудио
+        // Проверяем разрешения
         val audioPermission = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED
 
-        // Проверяем, есть ли разрешение на камеру
         val cameraPermission = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
 
         if (!audioPermission || !cameraPermission) {
-            // Либо запросить разрешения ещё раз, либо уведомить пользователя
             Snackbar.make(
                 binding.root,
                 "Необходимо разрешить доступ к камере и микрофону",
@@ -145,7 +161,6 @@ class VideoActivity : AppCompatActivity() {
         val file = File(externalMediaDirs.firstOrNull(), fileName)
         val outputOptions = FileOutputOptions.Builder(file).build()
 
-        // Разрешение проверено, можно включить аудио
         recording = videoCapture.output
             .prepareRecording(this, outputOptions)
             .withAudioEnabled()
@@ -153,7 +168,8 @@ class VideoActivity : AppCompatActivity() {
                 when (recordEvent) {
                     is VideoRecordEvent.Start -> {
                         runOnUiThread {
-                            binding.recordBtn.setImageResource(android.R.drawable.ic_media_pause)
+                            binding.recordBtn.setImageResource(R.drawable.record_button_rectangle)
+                            startTimer()
                         }
                     }
                     is VideoRecordEvent.Finalize -> {
@@ -163,7 +179,8 @@ class VideoActivity : AppCompatActivity() {
                             Log.e("TAG", "Ошибка записи видео: ${recordEvent.error}")
                         }
                         runOnUiThread {
-                            binding.recordBtn.setImageResource(android.R.drawable.ic_media_play)
+                            binding.recordBtn.setImageResource(R.drawable.record_button)
+                            stopTimer()
                         }
                         recording = null
                     }
@@ -172,13 +189,26 @@ class VideoActivity : AppCompatActivity() {
     }
 
     private fun stopRecording() {
-        // Останавливаем запись
         recording?.stop()
         recording = null
+        stopTimer()
+    }
+
+    private fun startTimer() {
+        recordStartTime = System.currentTimeMillis()
+        binding.recordTimerTxt.visibility = android.view.View.VISIBLE
+        timerHandler.post(timerRunnable)
+    }
+
+    private fun stopTimer() {
+        timerHandler.removeCallbacks(timerRunnable)
+        binding.recordTimerTxt.visibility = android.view.View.GONE
+        binding.recordTimerTxt.text = "00:00"
     }
 
     override fun onDestroy() {
         super.onDestroy()
         recordExecutor.shutdown()
+        timerHandler.removeCallbacks(timerRunnable)
     }
 }

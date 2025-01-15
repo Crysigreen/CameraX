@@ -68,12 +68,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Инициализация
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         imageCaptureExecutor = Executors.newSingleThreadExecutor()
 
-        // Запрос разрешений
         cameraPermissionResult.launch(android.Manifest.permission.CAMERA)
 
         binding.imgCaptureBtn.setOnClickListener {
@@ -97,7 +95,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Переход на экран видео
         binding.videoBtn.setOnClickListener {
             val intent = Intent(this, VideoActivity::class.java)
             startActivity(intent)
